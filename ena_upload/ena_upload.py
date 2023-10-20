@@ -22,6 +22,7 @@ import tempfile
 from ena_upload._version import __version__
 from ena_upload.check_remote import remote_check
 
+
 SCHEMA_TYPES = ['study', 'experiment', 'run', 'sample']
 
 STATUS_CHANGES = {'ADD': 'ADDED', 'MODIFY': 'MODIFIED',
