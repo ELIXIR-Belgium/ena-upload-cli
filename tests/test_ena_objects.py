@@ -1,9 +1,7 @@
-import os
 import jsonschema
 import pytest
 import json
 
-from rich import print_json
 from ena_upload.json_parsing.characteristic import IsaBase
 from ena_upload.json_parsing.ena_submission import EnaSubmission, EnaSample
 from ena_upload.json_parsing.ena_std_lib import fetch_assay_streams, study_publication_ids

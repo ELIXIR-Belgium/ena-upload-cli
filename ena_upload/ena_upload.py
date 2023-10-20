@@ -12,6 +12,7 @@ import yaml
 import hashlib
 import ftplib
 import requests
+import json
 import uuid
 import numpy as np
 import re
@@ -21,6 +22,7 @@ import pandas as pd
 import tempfile
 from ena_upload._version import __version__
 from ena_upload.check_remote import remote_check
+from json_parsing.ena_submission import EnaSubmission
 
 
 SCHEMA_TYPES = ['study', 'experiment', 'run', 'sample']
@@ -713,6 +715,9 @@ def process_args():
 
     parser.add_argument('--xlsx',
                         help='filled in excel template with metadata')
+    
+    parser.add_argument('--isa_json',
+                        help='ISA json describing the ')
 
     parser.add_argument('--auto_action',
                         action="store_true",
@@ -760,6 +765,12 @@ def process_args():
             parser.error(msg)
 
     # check if xlsx file exists
+    if args.xlsx:
+        if not os.path.isfile(args.xlsx):
+            msg = f"Oops, the file {args.xlsx} does not exist"
+            parser.error(msg)
+
+    # check if ISA json file exists
     if args.xlsx:
         if not os.path.isfile(args.xlsx):
             msg = f"Oops, the file {args.xlsx} does not exist"
@@ -858,6 +869,13 @@ def main():
             schema_dataframe[schema] = xl_sheet
             path = os.path.dirname(os.path.abspath(xlsx))
             schema_tables[schema] = f"{path}/ENA_template_{schema}.tsv"
+    elif isa_json:
+        # Read json file
+        isa_json_file = open(
+            "tests/test_data/multi_study_multi_assay_stream_investigation.json"
+        )
+        isa_json = json.load(isa_json_file)
+
     else:
         # collect the schema with table input from command-line
         schema_tables = collect_tables(args)
