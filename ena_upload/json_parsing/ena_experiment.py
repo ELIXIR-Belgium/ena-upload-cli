@@ -2,18 +2,18 @@ from typing import List, Dict, Union
 
 from pandas import DataFrame
 
-from json_parsing.ena_std_lib import (
+from ena_upload.json_parsing.ena_std_lib import (
     fetch_assay_comment_by_name,
     get_assay_sample_associations,
     clip_off_prefix,
 )
-from json_parsing.characteristic import (
+from ena_upload.json_parsing.characteristic import (
     IsaBase,
     OtherMaterialCharacteristic,
     ParameterValue,
 )
-from json_parsing.ena_sample import EnaSample
-from json_parsing.other_material import OtherMaterial
+from ena_upload.json_parsing.ena_sample import EnaSample
+from ena_upload.json_parsing.other_material import OtherMaterial
 
 
 def experiment_alias(other_material: OtherMaterial, prefix: str) -> str:

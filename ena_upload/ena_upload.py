@@ -22,7 +22,7 @@ import pandas as pd
 import tempfile
 from ena_upload._version import __version__
 from ena_upload.check_remote import remote_check
-from json_parsing.ena_submission import EnaSubmission
+from ena_upload.json_parsing.ena_submission import EnaSubmission
 
 
 SCHEMA_TYPES = ['study', 'experiment', 'run', 'sample']
@@ -717,7 +717,10 @@ def process_args():
                         help='filled in excel template with metadata')
     
     parser.add_argument('--isa_json',
-                        help='ISA json describing the ')
+                        help='ISA json describing describing the ENA objects')
+    
+    parser.add_argument('--isa_assay_stream',
+                        help='specify the assay stream that holds the ENA information')
 
     parser.add_argument('--auto_action',
                         action="store_true",
@@ -755,7 +758,7 @@ def process_args():
 
     # check if any table is given
     tables = set([args.study, args.sample, args.experiment, args.run])
-    if tables == {None} and not args.xlsx:
+    if tables == {None} and not args.xlsx and not args.isa_json:
         parser.error('Requires at least one table for submission')
 
     # check if .secret file exists
@@ -771,10 +774,12 @@ def process_args():
             parser.error(msg)
 
     # check if ISA json file exists
-    if args.xlsx:
-        if not os.path.isfile(args.xlsx):
-            msg = f"Oops, the file {args.xlsx} does not exist"
+    if args.isa_json:
+        if not os.path.isfile(args.isa_json):
+            msg = f"Oops, the file {args.isa_json} does not exist"
             parser.error(msg)
+        if args.isa_assay_stream is None :
+            parser.error("--isa_json requires --isa_assay_stream")
 
     # check if data is given when adding a 'run' table
     if (not args.no_data_upload and args.run and args.action.upper() not in ['RELEASE', 'CANCEL']) or (not args.no_data_upload and args.xlsx and args.action.upper() not in ['RELEASE', 'CANCEL']):
@@ -828,6 +833,8 @@ def main():
     secret = args.secret
     draft = args.draft
     xlsx = args.xlsx
+    isa_json_file = args.isa_json
+    isa_assay_stream = args.isa_assay_stream
     auto_action = args.auto_action
 
     with open(secret, 'r') as secret_file:
@@ -869,12 +876,21 @@ def main():
             schema_dataframe[schema] = xl_sheet
             path = os.path.dirname(os.path.abspath(xlsx))
             schema_tables[schema] = f"{path}/ENA_template_{schema}.tsv"
-    elif isa_json:
+    elif isa_json_file:
         # Read json file
-        isa_json_file = open(
-            "tests/test_data/multi_study_multi_assay_stream_investigation.json"
-        )
-        isa_json = json.load(isa_json_file)
+        isa_json = json.load(open(isa_json_file))
+
+        schema_tables = {}
+        schema_dataframe = {}
+        required_assays = [{"assay_stream": isa_assay_stream}]
+        submission = EnaSubmission.from_isa_json(isa_json, required_assays)
+        submission_dataframes = submission.generate_dataframes()
+        for schema, df in submission_dataframes.items():
+            schema_dataframe[schema] = check_columns(
+                df, schema, action, dev, auto_action)
+            path = os.path.dirname(os.path.abspath(isa_json_file))
+            schema_tables[schema] = f"{path}/ENA_template_{schema}.tsv"
+
 
     else:
         # collect the schema with table input from command-line
