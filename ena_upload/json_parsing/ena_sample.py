@@ -1,9 +1,9 @@
 from typing import List, Dict
-from ena_objects.characteristic import SampleCharacteristic
+from json_parsing.characteristic import SampleCharacteristic
 
 from pandas import DataFrame
 
-from ena_objects.ena_std_lib import clip_off_prefix, fetch_study_comment_by_name
+from json_parsing.ena_std_lib import clip_off_prefix, fetch_study_comment_by_name
 
 
 def fetch_characteristic_categories(study_dict: Dict) -> Dict:

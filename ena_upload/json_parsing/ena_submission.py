@@ -1,20 +1,20 @@
 from typing import List, Dict
 
 from pandas import DataFrame
-from ena_objects.characteristic import IsaBase
-from ena_objects.ena_experiment import (
+from json_parsing.characteristic import IsaBase
+from json_parsing.ena_experiment import (
     EnaExperiment,
     export_experiments_to_dataframe,
 )
-from ena_objects.ena_run import EnaRun, export_runs_to_dataframe
-from ena_objects.ena_sample import EnaSample, export_samples_to_dataframe
-from ena_objects.ena_std_lib import (
+from json_parsing.ena_run import EnaRun, export_runs_to_dataframe
+from json_parsing.ena_sample import EnaSample, export_samples_to_dataframe
+from json_parsing.ena_std_lib import (
     fetch_assay_streams,
     fetch_study_comment_by_name,
     study_publication_ids,
 )
 
-from ena_objects.ena_study import EnaStudy, export_studies_to_dataframe
+from json_parsing.ena_study import EnaStudy, export_studies_to_dataframe
 
 
 def fetch_assay(assay, required_assays):
